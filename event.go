@@ -1,5 +1,7 @@
 package tui
 
+import "image"
+
 type EventType int
 
 const (
@@ -40,9 +42,19 @@ const (
 	ModNone ModMask = 0
 )
 
-type Event struct {
+type KeyEvent struct {
 	Type      EventType
 	Key       Key
 	Ch        rune
 	Modifiers ModMask
+}
+
+type MouseEvent struct {
+	Pos image.Point
+}
+
+type PaintEvent struct {
+}
+
+type Event interface {
 }

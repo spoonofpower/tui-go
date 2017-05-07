@@ -6,6 +6,8 @@ import (
 	"github.com/gdamore/tcell"
 )
 
+var Repaint = func() {}
+
 var _ UI = &tcellUI{}
 
 type tcellUI struct {
@@ -19,6 +21,8 @@ type tcellUI struct {
 	screen tcell.Screen
 
 	kbFocus *KbFocusController
+
+	eventQueue chan Event
 }
 
 func newTcellUI(root Widget) (*tcellUI, error) {
@@ -38,7 +42,8 @@ func newTcellUI(root Widget) (*tcellUI, error) {
 		keybindings: make([]*Keybinding, 0),
 		quit:        make(chan struct{}, 1),
 		screen:      screen,
-		kbFocus:     &KbFocusController{chain: DefaultFocusChain},
+		kbFocus:     &KbFocusController{chain: DefaultFocusChain, root: root},
+		eventQueue:  make(chan Event, 1),
 	}, nil
 }
 
@@ -75,84 +80,78 @@ func (ui *tcellUI) Run() error {
 	}
 
 	ui.screen.SetStyle(tcell.StyleDefault)
+	ui.screen.EnableMouse()
 	ui.screen.Clear()
 
-	ui.Painter.Repaint(ui.Root)
-
-	eventCh := make(chan tcell.Event, 1)
+	Repaint = func() {
+		ui.eventQueue <- PaintEvent{}
+	}
 
 	go func() {
 		for {
-			eventCh <- ui.screen.PollEvent()
+			switch ev := ui.screen.PollEvent().(type) {
+			case *tcell.EventKey:
+				ui.handleKeyEvent(ev)
+			case *tcell.EventMouse:
+				ui.handleMouseEvent(ev)
+			case *tcell.EventResize:
+				ui.handleResizeEvent(ev)
+			}
 		}
 	}()
+
+	Repaint()
 
 	for {
 		select {
 		case <-ui.quit:
 			return nil
-		case ev := <-eventCh:
-			ui.notify(convertTcellEvent(ev))
-			ui.Painter.Repaint(ui.Root)
+		case ev := <-ui.eventQueue:
+			ui.handleEvent(ev)
 		}
 	}
+}
+
+func (ui *tcellUI) handleEvent(ev Event) {
+	switch e := ev.(type) {
+	case KeyEvent:
+		for _, b := range ui.keybindings {
+			if b.Match(e) {
+				b.Handler()
+			}
+		}
+		ui.kbFocus.OnKeyEvent(e)
+		ui.Root.OnEvent(e)
+		ui.Painter.Repaint(ui.Root)
+	case MouseEvent:
+		ui.kbFocus.OnMouseEvent(e)
+	case PaintEvent:
+		ui.Painter.Repaint(ui.Root)
+	}
+}
+
+func (ui *tcellUI) handleKeyEvent(tev *tcell.EventKey) {
+	ui.eventQueue <- KeyEvent{
+		Type:      EventKey,
+		Key:       convertTcellEventKey(tev.Key()),
+		Ch:        tev.Rune(),
+		Modifiers: ModMask(tev.Modifiers()),
+	}
+}
+
+func (ui *tcellUI) handleMouseEvent(ev *tcell.EventMouse) {
+	x, y := ev.Position()
+	ui.eventQueue <- MouseEvent{Pos: image.Pt(x, y)}
+}
+
+func (ui *tcellUI) handleResizeEvent(ev *tcell.EventResize) {
+	ui.eventQueue <- PaintEvent{}
 }
 
 // Quit signals to the UI to start shutting down.
 func (ui *tcellUI) Quit() {
 	ui.screen.Fini()
 	ui.quit <- struct{}{}
-}
-
-func (ui *tcellUI) notify(ev Event) {
-	for _, b := range ui.keybindings {
-		if b.Match(ev) {
-			b.Handler()
-		}
-	}
-	ui.kbFocus.OnEvent(ev)
-	ui.Root.OnEvent(ev)
-}
-
-func convertTcellEvent(tev tcell.Event) Event {
-	switch tev := tev.(type) {
-	case *tcell.EventKey:
-		return Event{
-			Type:      EventKey,
-			Key:       convertTcellEventKey(tev.Key()),
-			Ch:        tev.Rune(),
-			Modifiers: ModMask(tev.Modifiers()),
-		}
-	default:
-		return Event{}
-	}
-}
-
-func convertTcellEventKey(key tcell.Key) Key {
-	switch key {
-	case tcell.KeyEnter:
-		return KeyEnter
-	case tcell.KeyTab:
-		return KeyTab
-	case tcell.KeyBacktab:
-		return KeyBacktab
-	case tcell.KeyEsc:
-		return KeyEsc
-	case tcell.KeyBackspace:
-		return KeyBackspace
-	case tcell.KeyBackspace2:
-		return KeyBackspace2
-	case tcell.KeyUp:
-		return KeyArrowUp
-	case tcell.KeyDown:
-		return KeyArrowDown
-	case tcell.KeyLeft:
-		return KeyArrowLeft
-	case tcell.KeyRight:
-		return KeyArrowRight
-	default:
-		return KeyUnknown
-	}
 }
 
 var _ Surface = &tcellSurface{}
@@ -184,6 +183,33 @@ func (s *tcellSurface) End() {
 func (s *tcellSurface) Size() image.Point {
 	w, h := s.screen.Size()
 	return image.Point{w, h}
+}
+
+func convertTcellEventKey(key tcell.Key) Key {
+	switch key {
+	case tcell.KeyEnter:
+		return KeyEnter
+	case tcell.KeyTab:
+		return KeyTab
+	case tcell.KeyBacktab:
+		return KeyBacktab
+	case tcell.KeyEsc:
+		return KeyEsc
+	case tcell.KeyBackspace:
+		return KeyBackspace
+	case tcell.KeyBackspace2:
+		return KeyBackspace2
+	case tcell.KeyUp:
+		return KeyArrowUp
+	case tcell.KeyDown:
+		return KeyArrowDown
+	case tcell.KeyLeft:
+		return KeyArrowLeft
+	case tcell.KeyRight:
+		return KeyArrowRight
+	default:
+		return KeyUnknown
+	}
 }
 
 func convertColor(col Color, fg bool) tcell.Color {

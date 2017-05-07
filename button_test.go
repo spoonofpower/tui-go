@@ -12,7 +12,7 @@ func TestButton_OnActivated(t *testing.T) {
 		invoked = true
 	})
 
-	ev := Event{
+	ev := KeyEvent{
 		Type: EventKey,
 		Key:  KeyEnter,
 	}

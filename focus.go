@@ -10,9 +10,15 @@ type KbFocusController struct {
 	focusedWidget Widget
 
 	chain FocusChain
+
+	root Widget
 }
 
-func (c *KbFocusController) OnEvent(e Event) {
+func (c *KbFocusController) OnMouseEvent(e MouseEvent) {
+	// c.root.Bounds()
+}
+
+func (c *KbFocusController) OnKeyEvent(e KeyEvent) {
 	if e.Type != EventKey || c.chain == nil {
 		return
 	}

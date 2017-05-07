@@ -62,7 +62,7 @@ func (e *Entry) SizeHint() image.Point {
 }
 
 // OnEvent handles terminal events.
-func (e *Entry) OnEvent(ev Event) {
+func (e *Entry) OnEvent(ev KeyEvent) {
 	if !e.IsFocused() || ev.Type != EventKey {
 		return
 	}

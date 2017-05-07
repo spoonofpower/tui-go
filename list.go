@@ -48,7 +48,7 @@ func (l *List) SizeHint() image.Point {
 	return image.Point{width, len(l.items)}
 }
 
-func (l *List) OnEvent(ev Event) {
+func (l *List) OnEvent(ev KeyEvent) {
 	if !l.IsFocused() || ev.Type != EventKey {
 		return
 	}
@@ -102,9 +102,9 @@ func (l *List) AddItems(items ...string) {
 }
 
 func (l *List) RemoveItems() {
-       l.items = []string{}
-       l.pos = 0
-       l.selected = -1
+	l.items = []string{}
+	l.pos = 0
+	l.selected = -1
 }
 
 func (l *List) SetSelected(i int) {

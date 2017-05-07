@@ -98,7 +98,7 @@ func TestEntry_OnChanged(t *testing.T) {
 		}
 	})
 
-	ev := Event{
+	ev := KeyEvent{
 		Type: EventKey,
 		Ch:   't',
 	}
@@ -129,7 +129,7 @@ func TestEntry_OnSubmit(t *testing.T) {
 		invoked = true
 	})
 
-	ev := Event{
+	ev := KeyEvent{
 		Type: EventKey,
 		Key:  KeyEnter,
 	}

@@ -19,7 +19,7 @@ type Widget interface {
 	SizeHint() image.Point
 	SizePolicy() (SizePolicy, SizePolicy)
 	Resize(size image.Point)
-	OnEvent(ev Event)
+	OnEvent(ev KeyEvent)
 	SetFocused(bool)
 }
 
@@ -68,5 +68,5 @@ func (w *WidgetBase) Resize(size image.Point) {
 	w.size = size
 }
 
-func (w *WidgetBase) OnEvent(ev Event) {
+func (w *WidgetBase) OnEvent(ev KeyEvent) {
 }

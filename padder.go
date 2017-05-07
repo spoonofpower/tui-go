@@ -52,7 +52,7 @@ func (p *Padder) Resize(size image.Point) {
 	p.widget.Resize(size.Sub(p.padding.Mul(2)))
 }
 
-func (p *Padder) OnEvent(ev Event) {
+func (p *Padder) OnEvent(ev KeyEvent) {
 	p.widget.OnEvent(ev)
 }
 
