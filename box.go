@@ -49,6 +49,10 @@ func (b *Box) Append(w Widget) {
 	b.children = append(b.children, w)
 }
 
+func (b *Box) Clear() {
+	b.children = nil
+}
+
 // SetBorder sets whether the border is visible or not.
 func (b *Box) SetBorder(enabled bool) {
 	b.border = enabled
