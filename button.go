@@ -29,6 +29,8 @@ func (b *Button) Draw(p *Painter) {
 	style := "button"
 	if b.IsFocused() {
 		style += ".focused"
+		// Hide the cursor
+		p.surface.SetCursor(-1, -1)
 	}
 	p.WithStyle(style, func(p *Painter) {
 		lines := strings.Split(b.text, "\n")
