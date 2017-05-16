@@ -71,7 +71,6 @@ func (ui *tcellUI) Run() error {
 
 	if w := ui.kbFocus.chain.FocusDefault(); w != nil {
 		w.SetFocused(true)
-		ui.kbFocus.focusedWidget = w
 	}
 
 	ui.screen.SetStyle(tcell.StyleDefault)

@@ -1,14 +1,12 @@
 package tui
 
 type FocusChain interface {
-	FocusNext(w Widget) Widget
-	FocusPrev(w Widget) Widget
+	FocusNext() Widget
+	FocusPrev() Widget
 	FocusDefault() Widget
 }
 
 type KbFocusController struct {
-	focusedWidget Widget
-
 	chain FocusChain
 }
 
@@ -18,17 +16,9 @@ func (c *KbFocusController) OnEvent(e Event) {
 	}
 	switch e.Key {
 	case KeyTab:
-		if c.focusedWidget != nil {
-			c.focusedWidget.SetFocused(false)
-			c.focusedWidget = c.chain.FocusNext(c.focusedWidget)
-			c.focusedWidget.SetFocused(true)
-		}
+		c.chain.FocusNext()
 	case KeyBacktab:
-		if c.focusedWidget != nil {
-			c.focusedWidget.SetFocused(false)
-			c.focusedWidget = c.chain.FocusPrev(c.focusedWidget)
-			c.focusedWidget.SetFocused(true)
-		}
+		c.chain.FocusPrev()
 	}
 }
 
@@ -44,27 +34,33 @@ func (c *SimpleFocusChain) Set(ws ...Widget) {
 	c.widgets = ws
 }
 
-func (c *SimpleFocusChain) FocusNext(current Widget) Widget {
+func (c *SimpleFocusChain) FocusNext() Widget {
 	for i, w := range c.widgets {
-		if w != current {
+		if !w.IsFocused() {
 			continue
 		}
+		w.SetFocused(false)
 		if i < len(c.widgets)-1 {
+			c.widgets[i+1].SetFocused(true)
 			return c.widgets[i+1]
 		}
+		c.widgets[0].SetFocused(true)
 		return c.widgets[0]
 	}
 	return nil
 }
 
-func (c *SimpleFocusChain) FocusPrev(current Widget) Widget {
+func (c *SimpleFocusChain) FocusPrev() Widget {
 	for i, w := range c.widgets {
-		if w != current {
+		if !w.IsFocused() {
 			continue
 		}
+		w.SetFocused(false)
 		if i <= 0 {
+			c.widgets[len(c.widgets)-1].SetFocused(true)
 			return c.widgets[len(c.widgets)-1]
 		}
+		c.widgets[i-1].SetFocused(true)
 		return c.widgets[i-1]
 	}
 	return nil

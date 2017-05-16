@@ -59,3 +59,7 @@ func (p *Padder) OnEvent(ev Event) {
 func (p *Padder) SetFocused(f bool) {
 	p.widget.SetFocused(f)
 }
+
+func (p *Padder) IsFocused() bool {
+	return false
+}
