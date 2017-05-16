@@ -15,25 +15,34 @@ type Label struct {
 
 	text     string
 	wordWrap bool
+	style    string
 }
 
 // NewLabel returns a new Label.
 func NewLabel(text string) *Label {
 	return &Label{
-		text: text,
+		text:  text,
+		style: "normal",
 	}
+}
+
+func (l *Label) SetStyle(style string) *Label {
+	l.style = style
+	return l
 }
 
 // Draw draws the label.
 func (l *Label) Draw(p *Painter) {
-	lines := strings.Split(l.text, "\n")
+	p.WithStyle(l.style, func(p *Painter) {
+		lines := strings.Split(l.text, "\n")
 
-	if l.wordWrap {
-		lines = strings.Split(wordwrap.WrapString(l.text, uint(l.Size().X)), "\n")
-	}
-	for i, line := range lines {
-		p.DrawText(0, i, line)
-	}
+		if l.wordWrap {
+			lines = strings.Split(wordwrap.WrapString(l.text, uint(l.Size().X)), "\n")
+		}
+		for i, line := range lines {
+			p.DrawText(0, i, line)
+		}
+	})
 }
 
 // MinSizeHint returns the minimum size the widget is allowed to be.
