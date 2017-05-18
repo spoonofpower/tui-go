@@ -2,6 +2,7 @@ package tui
 
 import (
 	"image"
+	"os"
 
 	"github.com/gdamore/tcell"
 )
@@ -21,8 +22,8 @@ type tcellUI struct {
 	kbFocus *KbFocusController
 }
 
-func newTcellUI(root Widget) (*tcellUI, error) {
-	screen, err := tcell.NewScreen()
+func newTcellUI(root Widget, term string) (*tcellUI, error) {
+	screen, err := tcell.NewScreen(term)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +65,8 @@ func (ui *tcellUI) SetKeybinding(k interface{}, fn func()) {
 	ui.keybindings = append(ui.keybindings, kb)
 }
 
-func (ui *tcellUI) Run() error {
-	if err := ui.screen.Init(); err != nil {
+func (ui *tcellUI) Run(tty *os.File) error {
+	if err := ui.screen.Init(tty); err != nil {
 		return err
 	}
 
