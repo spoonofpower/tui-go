@@ -78,7 +78,7 @@ func (e *Entry) OnEvent(ev Event) {
 			if e.onTextChange != nil {
 				e.onTextChange(e)
 			}
-		case KeyBackspace2:
+		case KeyBackspace, KeyBackspace2:
 			if len(e.text) > 0 {
 				e.text = trimRightLen(e.text, 1)
 				if e.onTextChange != nil {
