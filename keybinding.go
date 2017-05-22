@@ -6,6 +6,6 @@ type Keybinding struct {
 	Handler func()
 }
 
-func (b *Keybinding) Match(ev Event) bool {
+func (b *Keybinding) Match(ev *Event) bool {
 	return (b.Key == ev.Key) && (b.Ch == ev.Ch)
 }

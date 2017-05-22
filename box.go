@@ -152,8 +152,11 @@ func (b *Box) SizeHint() image.Point {
 }
 
 // OnEvent handles an event and propagates it to all children.
-func (b *Box) OnEvent(ev Event) {
+func (b *Box) OnEvent(ev *Event) {
 	for _, child := range b.children {
+		if ev.PropagationStopped {
+			return
+		}
 		child.OnEvent(ev)
 	}
 }

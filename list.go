@@ -48,7 +48,7 @@ func (l *List) SizeHint() image.Point {
 	return image.Point{width, len(l.items)}
 }
 
-func (l *List) OnEvent(ev Event) {
+func (l *List) OnEvent(ev *Event) {
 	if !l.IsFocused() || ev.Type != EventKey {
 		return
 	}

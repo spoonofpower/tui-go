@@ -41,8 +41,13 @@ const (
 )
 
 type Event struct {
-	Type      EventType
-	Key       Key
-	Ch        rune
-	Modifiers ModMask
+	Type               EventType
+	Key                Key
+	Ch                 rune
+	Modifiers          ModMask
+	PropagationStopped bool
+}
+
+func (e *Event) StopPropagation() {
+	e.PropagationStopped = true
 }

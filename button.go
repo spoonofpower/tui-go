@@ -60,7 +60,7 @@ func (b *Button) SizeHint() image.Point {
 }
 
 // OnEvent handles terminal events.
-func (b *Button) OnEvent(ev Event) {
+func (b *Button) OnEvent(ev *Event) {
 	if !b.IsFocused() || ev.Type != EventKey {
 		return
 	}

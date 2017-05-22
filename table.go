@@ -90,7 +90,7 @@ func (t *Table) Draw(p *Painter) {
 }
 
 // OnEvent handles an event and propagates it to all children.
-func (t *Table) OnEvent(ev Event) {
+func (t *Table) OnEvent(ev *Event) {
 	switch ev.Key {
 	case KeyArrowUp:
 		t.moveUp()

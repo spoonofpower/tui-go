@@ -55,7 +55,7 @@ func (e *TextEdit) SizeHint() image.Point {
 }
 
 // OnEvent handles terminal events.
-func (e *TextEdit) OnEvent(ev Event) {
+func (e *TextEdit) OnEvent(ev *Event) {
 	if !e.IsFocused() || ev.Type != EventKey {
 		return
 	}

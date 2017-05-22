@@ -406,8 +406,11 @@ func (g *Grid) minColumnWidth(i int) int {
 }
 
 // OnEvent handles terminal events.
-func (g *Grid) OnEvent(ev Event) {
+func (g *Grid) OnEvent(ev *Event) {
 	for _, w := range g.cells {
+		if ev.PropagationStopped {
+			return
+		}
 		w.OnEvent(ev)
 	}
 }

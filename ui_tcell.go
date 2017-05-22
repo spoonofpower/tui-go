@@ -104,7 +104,7 @@ func (ui *tcellUI) Quit() {
 	ui.quit <- struct{}{}
 }
 
-func (ui *tcellUI) notify(ev Event) {
+func (ui *tcellUI) notify(ev *Event) {
 	for _, b := range ui.keybindings {
 		if b.Match(ev) {
 			b.Handler()
@@ -114,17 +114,17 @@ func (ui *tcellUI) notify(ev Event) {
 	ui.Root.OnEvent(ev)
 }
 
-func convertTcellEvent(tev tcell.Event) Event {
+func convertTcellEvent(tev tcell.Event) *Event {
 	switch tev := tev.(type) {
 	case *tcell.EventKey:
-		return Event{
+		return &Event{
 			Type:      EventKey,
 			Key:       convertTcellEventKey(tev.Key()),
 			Ch:        tev.Rune(),
 			Modifiers: ModMask(tev.Modifiers()),
 		}
 	default:
-		return Event{}
+		return &Event{}
 	}
 }
 
